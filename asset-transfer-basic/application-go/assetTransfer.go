@@ -10,9 +10,10 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
-	"os"
 	"path/filepath"
-
+	"bufio"
+	"os"
+	"strings"
 	"github.com/hyperledger/fabric-sdk-go/pkg/core/config"
 	"github.com/hyperledger/fabric-sdk-go/pkg/gateway"
 )
@@ -110,6 +111,25 @@ func main() {
 		log.Fatalf("Failed to evaluate transaction: %v", err)
 	}
 	log.Println(string(result))
+	
+	reader := bufio.NewReader(os.Stdin)
+	for {
+		fmt.Println("Enter asset ID: ")
+		input, err := reader.ReadString('\n')
+		if err != nil {
+			fmt.Println("An error occured while reading input. Please try again", err)
+			return
+		}
+		// remove the delimeter from the string
+		input = strings.TrimSuffix(input, "\n")
+		fmt.Println(input)
+		log.Println("--> Submit Transaction: CreateAsset, creates new asset with ID, color, owner, size, and appraisedValue arguments")
+		result, err = contract.SubmitTransaction("CreateAsset", input, "yellow", "5", "Sekhi", "130")
+	        if err != nil {
+			log.Fatalf("Failed to Submit transaction: %v", err)
+		 }
+		 log.Println("Result is : ", string(result))
+	}
 	log.Println("============ application-golang ends ============")
 }
 
